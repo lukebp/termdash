@@ -18,7 +18,9 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"math"
+	"os"
 	"time"
 
 	"github.com/mum4k/termdash"
@@ -30,50 +32,15 @@ import (
 	"github.com/mum4k/termdash/widgets/linechart"
 )
 
-// sineInputs generates values from -1 to 1 for display on the line chart.
-func sineInputs() []float64 {
-	var res []float64
-
-	for i := 0; i < 200; i++ {
-		v := math.Sin(float64(i) / 100 * math.Pi)
-		res = append(res, v)
-	}
-	return res
-}
-
-// playLineChart continuously adds values to the LineChart, once every delay.
-// Exits when the context expires.
-func playLineChart(ctx context.Context, lc *linechart.LineChart, delay time.Duration) {
-	inputs := sineInputs()
-	ticker := time.NewTicker(delay)
-	defer ticker.Stop()
-	for i := 0; ; {
-		select {
-		case <-ticker.C:
-			i = (i + 1) % len(inputs)
-			rotated := append(inputs[i:], inputs[:i]...)
-			if err := lc.Series("first", rotated,
-				linechart.SeriesCellOpts(cell.FgColor(cell.ColorNumber(33))),
-				linechart.SeriesXLabels(map[int]string{
-					0: "zero",
-				}),
-			); err != nil {
-				panic(err)
-			}
-
-			i2 := (i + 100) % len(inputs)
-			rotated2 := append(inputs[i2:], inputs[:i2]...)
-			if err := lc.Series("second", rotated2, linechart.SeriesCellOpts(cell.FgColor(cell.ColorWhite))); err != nil {
-				panic(err)
-			}
-
-		case <-ctx.Done():
-			return
-		}
-	}
-}
-
 func main() {
+	err := tviewExample()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(1)
+	}
+}
+
+func termdashExample() {
 	t, err := tcell.New()
 	if err != nil {
 		panic(err)
@@ -110,4 +77,47 @@ func main() {
 	if err := termdash.Run(ctx, t, c, termdash.KeyboardSubscriber(quitter), termdash.RedrawInterval(redrawInterval)); err != nil {
 		panic(err)
 	}
+}
+
+// playLineChart continuously adds values to the LineChart, once every delay.
+// Exits when the context expires.
+func playLineChart(ctx context.Context, lc *linechart.LineChart, delay time.Duration) {
+	inputs := sineInputs()
+	ticker := time.NewTicker(delay)
+	defer ticker.Stop()
+	for i := 0; ; {
+		select {
+		case <-ticker.C:
+			i = (i + 1) % len(inputs)
+			rotated := append(inputs[i:], inputs[:i]...)
+			if err := lc.Series("first", rotated,
+				linechart.SeriesCellOpts(cell.FgColor(cell.ColorNumber(33))),
+				linechart.SeriesXLabels(map[int]string{
+					0: "zero",
+				}),
+			); err != nil {
+				panic(err)
+			}
+
+			i2 := (i + 100) % len(inputs)
+			rotated2 := append(inputs[i2:], inputs[:i2]...)
+			if err := lc.Series("second", rotated2, linechart.SeriesCellOpts(cell.FgColor(cell.ColorWhite))); err != nil {
+				panic(err)
+			}
+
+		case <-ctx.Done():
+			return
+		}
+	}
+}
+
+// sineInputs generates values from -1 to 1 for display on the line chart.
+func sineInputs() []float64 {
+	var res []float64
+
+	for i := 0; i < 200; i++ {
+		v := math.Sin(float64(i) / 100 * math.Pi)
+		res = append(res, v)
+	}
+	return res
 }

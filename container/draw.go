@@ -68,6 +68,46 @@ func drawTree(c *Container) error {
 	return nil
 }
 
+// drawTreeInside draws this container and all of its sub containers inside
+// of the provided coordinates.
+func drawTreeInside(c *Container, x, y, width, height int) error {
+	var errStr string
+
+	root := rootCont(c)
+	ar, err := root.opts.margin.apply(image.Rect(x, y, x+width, y+height))
+	if err != nil {
+		return err
+	}
+	root.area = ar
+
+	preOrder(root, &errStr, visitFunc(func(c *Container) error {
+		first, second, err := c.split()
+		if err != nil {
+			return err
+		}
+		if c.first != nil {
+			ar, err := c.first.opts.margin.apply(first)
+			if err != nil {
+				return err
+			}
+			c.first.area = ar
+		}
+
+		if c.second != nil {
+			ar, err := c.second.opts.margin.apply(second)
+			if err != nil {
+				return err
+			}
+			c.second.area = ar
+		}
+		return drawCont(c)
+	}))
+	if errStr != "" {
+		return errors.New(errStr)
+	}
+	return nil
+}
+
 // drawBorder draws the border around the container if requested.
 func drawBorder(c *Container) error {
 	if !c.hasBorder() {

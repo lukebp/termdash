@@ -233,6 +233,29 @@ func (c *Container) Draw() error {
 	return drawTree(c)
 }
 
+// DrawInside draws this container and all of its sub containers inside of
+// the provided coordinates.
+func (c *Container) DrawInside(x, y, width, height int) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.clearNeeded {
+		if err := c.term.Clear(); err != nil {
+			return fmt.Errorf("term.Clear => error: %v", err)
+		}
+		c.clearNeeded = false
+	}
+
+	// Update the area we are tracking for focus in case the terminal size
+	// changed.
+	ar, err := area.FromSize(c.term.Size())
+	if err != nil {
+		return err
+	}
+	c.focusTracker.updateArea(ar)
+	return drawTreeInside(c, x, y, width, height)
+}
+
 // Update updates container with the specified id by setting the provided
 // options. This can be used to perform dynamic layout changes, i.e. anything
 // between replacing the widget in the container and completely changing the

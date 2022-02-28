@@ -129,6 +129,29 @@ func New(opts ...Option) (*Terminal, error) {
 	return t, nil
 }
 
+// NewWithScreen returns a new tcell based Terminal that is configured to use
+// the provided screen and does not have the event handlers initialized.
+func NewWithScreen(screen tcell.Screen, opts ...Option) (*Terminal, error) {
+	// Enable full character set support for tcell
+	encoding.Register()
+
+	t := &Terminal{
+		events:    eventqueue.New(),
+		done:      make(chan struct{}),
+		colorMode: DefaultColorMode,
+		clearStyle: &cell.Options{
+			FgColor: cell.ColorDefault,
+			BgColor: cell.ColorDefault,
+		},
+		screen: screen,
+	}
+	for _, opt := range opts {
+		opt.set(t)
+	}
+
+	return t, nil
+}
+
 // Size implements terminalapi.Terminal.Size.
 func (t *Terminal) Size() image.Point {
 	w, h := t.screen.Size()
