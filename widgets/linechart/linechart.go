@@ -23,6 +23,8 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/lukebp/termdash/widgets/linechart/axes"
+	"github.com/lukebp/termdash/widgets/linechart/zoom"
 	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/private/area"
 	"github.com/mum4k/termdash/private/canvas"
@@ -31,8 +33,6 @@ import (
 	"github.com/mum4k/termdash/private/numbers"
 	"github.com/mum4k/termdash/terminal/terminalapi"
 	"github.com/mum4k/termdash/widgetapi"
-	"github.com/mum4k/termdash/widgets/linechart/internal/axes"
-	"github.com/mum4k/termdash/widgets/linechart/internal/zoom"
 )
 
 // seriesValues represent values stored in the series.

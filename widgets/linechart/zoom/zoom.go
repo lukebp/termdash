@@ -20,11 +20,11 @@ import (
 	"image"
 	"reflect"
 
+	"github.com/lukebp/termdash/widgets/linechart/axes"
 	"github.com/mum4k/termdash/mouse"
 	"github.com/mum4k/termdash/private/button"
 	"github.com/mum4k/termdash/private/numbers"
 	"github.com/mum4k/termdash/terminal/terminalapi"
-	"github.com/mum4k/termdash/widgets/linechart/internal/axes"
 )
 
 // Option is used to provide options.
